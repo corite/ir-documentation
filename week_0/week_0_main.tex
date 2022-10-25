@@ -1,3 +1,4 @@
+%! TEX program = xelatex
 \documentclass{beamer}
 \usetheme{metropolis}%[sectionpage=none]
 %\usepackage{booktabs} 
@@ -17,29 +18,33 @@
 \usepackage{subcaption}
 \usepackage{csvsimple}
 
+\usepackage[backend=biber]{biblatex}
+\bibliography{../bibliography/bibliography.bib}
+\renewcommand*{\bibfont}{\footnotesize}
+
 %bibliography numbers
-\setbeamertemplate{bibliography item}{\insertbiblabel}
+%\setbeamertemplate{bibliography item}{\insertbiblabel}
 
 \newcommand{\teamname}{Team Neville Longbottom}
 
 
 
 
-\title{Image Retrieval for Arguments Using Stance-Aware Query Expansion \cite{kiesel:2021e}}
+\title{Image Retrieval for Arguments Using Stance-Aware Query Expansion \texorpdfstring{\cite{kiesel:2021e}}{}}
 
-\author{Bernd Heizmann, Christian Ortlepp, Gustav Lahmann, Max Koch\\$\longrightarrow$ aka \teamname}
+\author{Bernd Heizmann, Christian Ortlepp, Gustav Lahmann, Max Koch\texorpdfstring{\\$\longrightarrow$ aka \teamname}{aka \teamname}}
 
 
 \institute{Friedrich-Schiller-Universität Jena}
 
 \date{27.10.2022}
 
-
-
-
+\vfuzz=20pt
 \begin{document}
 	
+	
 	\maketitle
+
 	\begin{frame}{Gliederung}
 		\tableofcontents
 	\end{frame}
@@ -126,8 +131,7 @@
 	\end{section}
 	
 	\begin{frame}[allowframebreaks]{Bibliography}
-		\bibliography{../bibliography/bibliography.bib}
-		\bibliographystyle{splncs04}
+		\printbibliography
 	\end{frame}
 	%TODO Bilder?
 	%TODO Stichpunkte auf Englisch?
