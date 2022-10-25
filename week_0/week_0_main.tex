@@ -1,5 +1,5 @@
 \documentclass{beamer}
-\usetheme[sectionpage=none]{metropolis}
+\usetheme{metropolis}%[sectionpage=none]
 %\usepackage{booktabs} 
 \usepackage{url}
 \def\UrlBreaks{\do\/\do-}
@@ -25,14 +25,14 @@
 
 
 
-\title{Präsentation \teamname}
+\title{Image Retrieval for Arguments Using Stance-Aware Query Expansion \cite{kiesel:2021e}}
 
-\author{\teamname}
+\author{Bernd Heizmann, Christian Ortlepp, Gustav Lahmann, Max Koch\\$\longrightarrow$ aka \teamname}
 
 
 \institute{Friedrich-Schiller-Universität Jena}
 
-\date{10.10.2022}
+\date{27.10.2022}
 
 
 
@@ -44,17 +44,92 @@
 		\tableofcontents
 	\end{frame}
 	
-	\begin{section}{Paper TBD}
-		\begin{frame}{Paper ...}
-			content...
+	\begin{section}{Motivation \& Related Work} %auch related work?
+		\begin{frame}{Motivation}
+			\begin{itemize}
+				\item Bilder spielen eine große Rolle darin den eigenen Standpunkt zu vertreten \& zu verdeutlichen
+				\item Beispiele \begin{itemize}
+					\item Diagramme
+					\item Fotos
+					\item Memes
+				\end{itemize}
+			\item zurzeit gibt es Argumentsuche nur für text (z.B. args.me)
+			\end{itemize}
 		\end{frame}
 	\end{section}
 	
+	\begin{section}{Methodik}
+		\begin{frame}{Methodik}
+			\begin{itemize}
+				\item def: "Given a keyword query suggesting an issue or a claim for a topic, retrieve as two ranked lists those and only those images that can assist someone in (1) supporting and (2) attacking it."
+				\item Bewertungskriterien \begin{itemize}
+					\item Topic Relevance
+					\item Argumentativeness
+					\item Stance relevance
+				\end{itemize}
+				\item TREC-style Evaluation
+			\end{itemize}
+		\end{frame}
 	
+	\end{section}
+
+	\begin{section}{Ansatz: Stance-Aware Query Expansion}
+	\begin{frame}{Grundidee}
+		\begin{itemize}
+			\item Nutzeranfrage mit Stichworten anreichern, welche einen Standpunkt (Pro oder Contra) vertreten
+			\item Auswahl der Stichworte wird variiert
+		\end{itemize}
+	\end{frame}
+
+\begin{frame}{Good-Anti}
+	\begin{itemize}
+		\item Stichworte: "good" (pro), "anti" (con)
+	\end{itemize}
+\end{frame}
 	
-%	\begin{frame}[allowframebreaks]{Bibliography}
-%		\bibliography{../bibliography/bibliography.bib}
-%		\bibliographystyle{splncs04}
-%	\end{frame}
+	\begin{frame}{Positive-Negative}
+	\begin{itemize}
+		\item Stichworte aus MPQA subjectivity Lexikon
+		%TODO was ist das?
+		\item bis zu 5 Anfragen pro Standpunkt
+	\end{itemize}
+\end{frame}
+
+	\begin{frame}{Pros-Cons}
+	\begin{itemize}
+		\item nutzt args.me um Argumente für pro/con zu finden
+		\item hängt diese dann an die Suchanfrage an
+		%TODO diese Wahrscheinlichkeits-Berechnungnen
+	\end{itemize}
+\end{frame}
+\end{section}
+	
+	\begin{section}{Ergebnisse}
+		\begin{frame}{Ergebnisse}
+			\begin{itemize}
+				\item fast alle (92-95\%) Bilder on-topic
+				\item argumentative precision@10: \begin{itemize}
+					\item good-anti 0.64
+					\item pros-cons 0.52
+				\end{itemize}
+				\item stance precision@10 16-18\% niedriger
+			\end{itemize}
+		\end{frame}
+	
+	\begin{frame}{Probleme}
+		\begin{itemize}
+			\item Bilder oft eher illustrierend als argumentativ
+			\item teilweise zu viele Bilder von Shopping-Angeboten
+			\item einige Standpunkte werden online eher einseitig argumentiert
+		\end{itemize}
+	\end{frame}
+	\end{section}
+	
+	\begin{frame}[allowframebreaks]{Bibliography}
+		\bibliography{../bibliography/bibliography.bib}
+		\bibliographystyle{splncs04}
+	\end{frame}
+	%TODO Bilder?
+	%TODO Stichpunkte auf Englisch?
 	
 \end{document}
