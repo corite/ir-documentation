@@ -274,3 +274,7 @@ TSWLatexianTemp*
 
 # Makeindex log files
 *.lpz
+
+# some latex stuff from the template
+*.abs
+*.xmpdata
