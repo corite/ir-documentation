@@ -1,0 +1,123 @@
+%% The first command in your LaTeX source must be the \documentclass command.
+%%
+%% Options:
+%% twocolumn : Two column layout.
+%% hf: enable header and footer.
+\documentclass[
+% twocolumn,
+% hf,
+]{ceurart}
+
+%%
+%% One can fix some overfulls
+\sloppy
+
+%%
+%% Minted listings support 
+%% Need pygment <http://pygments.org/> <http://pypi.python.org/pypi/Pygments>
+\usepackage{listings}
+%% auto break lines
+\lstset{breaklines=true}
+
+%%
+%% end of the preamble, start of the body of the document source.
+\begin{document}
+
+%%
+%% Rights management information.
+%% CC-BY is default license.
+\copyrightyear{2023}
+\copyrightclause{Copyright for this paper by its authors.
+  Use permitted under Creative Commons License Attribution 4.0
+  International (CC BY 4.0).}
+
+%%
+%% This command is for the conference information
+\conference{CLEF 2023: Conference and Labs of the Evaluation Forum, 
+    September 18--21, 2023, Thessaloniki, Greece}
+
+%%
+%% The "title" command
+\title{Image Retrieval for Arguments - Team "Neville Longbottom"}
+\title[mode=sub]{Notebook for the Touch{\'e} Lab on Argument and Causal Retrieval at CLEF 2023}
+
+
+%%
+%% The "author" command and its associated commands are used to define
+%% the authors and their affiliations.
+\author[1]{Dascha Elagina}[%
+email=daria.elagina@uni-jena.de
+]
+\author[1]{Bernd-Albrecht Heizmann}[%
+email=bernd-albrecht.heizmann@uni-jena.de
+]
+\author[1]{Max Koch}[%
+email=max.koch@uni-jena.de
+]
+\author[1]{Gustav Lahmann}[%
+email=gustav.lahmann@uni-jena.de
+]
+\author[1]{Christian Ortlepp}[%
+email=christian.ortlepp@uni-jena.de
+]
+
+
+\address[1]{Friedrich-Schiller University Jena,
+07743, Jena}
+
+
+%%
+%% The abstract is a short summary of the work to be presented in the
+%% article.
+\begin{abstract}
+  A clear and well-documented \LaTeX{} document is presented as an
+  article formatted for publication by CEUR-WS in a conference
+  proceedings. Based on the ``ceurart'' document class, this article
+  presents and explains many of the common variations, as well as many
+  of the formatting elements an author may use in the preparation of
+  the documentation of their work.
+\end{abstract}
+
+%%
+%% Keywords. The author(s) should pick words that accurately describe
+%% the work being presented. Separate the keywords with commas.
+\begin{keywords}
+  CLIP \sep
+  ChatGPT \sep
+  IBM Debater \sep
+  args.me
+\end{keywords}
+
+%%
+%% This command processes the author and affiliation and title
+%% information and builds the first part of the formatted document.
+\maketitle
+
+\section{Query Expansion}
+
+\subsection{ChatGPT}%Christian
+\subsection{ArgsME}%Bernd
+\subsection{Pro-Con-Org?}%Dascha
+
+\section{Retrieval}
+
+\subsection{CLIP}%Max
+\subsection{BM25}%Gustav
+%content extraction beschreiben
+\subsection{BM25 Query Refinement?}
+
+\section{Reranking}
+
+\subsection{IBM Debater}%Christian
+\subsection{Sentiment Analysis}%Max
+%todo probieren mit neuer content extraction
+
+\section{Evaluation}
+
+\section{Results}
+
+
+\end{document}
+
+%%
+%% End of file
