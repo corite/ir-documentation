@@ -10,4 +10,9 @@ We applied this by first splitting the website text content into sentences and t
 %todo reference project debater website
 
 \subsection{Sentiment Analysis}%Max
+
+We also tried to use pre-trained sentiment analysis models to evaluate the stance of a given website text near the image. This did not work well for multiple reasons: First, some of the models we tried categorized sentiment in either 'positive' or 'negative' with a respective score. Probably because the models were not trained for our usage, the given scores were quite unusable and the models ranked non meaningful text too high. Using a BERTweet based model\cite{bertweet}\cite{perez2021pysentimiento} adds a 'neutral' sentiment category. Most of the websites it ranked in the 'positive' or 'negative' category were matched right. However, the percentage of text in the 'neutral' category was simply too high, meaning it could not find enough argumentative text given a reasonable amount of website texts.
+
+Additionally, for some topics the overall sentiment is the same for both stances. For example, the topic "Should abortion be legal?" has a negative sentiment in text that provides a pro abortion stance but also in text arguing against abortion. The assignment of sentiment to stance is generally ambiguous.
+
 %todo probieren mit neuer content extraction

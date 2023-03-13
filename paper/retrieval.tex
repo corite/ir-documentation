@@ -1,6 +1,11 @@
 \section{Retrieval}
 
 \subsection{CLIP}%Max
+
+One of the ways we retrieved images of the dataset given topic is by using the CLIP model\cite{DBLP:journals/corr/abs-2103-00020}. We use it to first calculate an image vector containing 512 entries for each image in the dataset. Doing the same for a query (topic), it can output a text-image similarity score by computing the cosine similarity between both vectors. We calculated the image vectors in advance and calculate the query vector only after the topic is given, taking very short time to compute the score. Given normalized vectors, the score can also be calculated by finding the distance between both vectors, assuming they start at the same point in a 512-dimension coordinate system.
+
+Our query is simply the given topic question. By changing it to be more argumentative for a specific stance, we could not achieve improvements in stance presicion.
+
 \subsection{BM25}%Gustav
 %content extraction beschreiben
 \subsection{BM25 Query Refinement?}
