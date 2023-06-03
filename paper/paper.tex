@@ -154,7 +154,19 @@ Given a list of arguments for a certain stance we concatenate all the arguments 
 
 The CLIP \cite{radford2021learning} neural network was designed and trained by OpenAI to map images as well as short phrases of text into the same 512-dimensional vector space. While projects like Stable Diffusion use this model to obtain vector representaions for prompts, we wanted to find images 
 
+- retrieve 100 images for each argument, sort by minimum distance between image result and argument
+
 \section{Reranking}
+
+- no reranking
+
+\subsection{Diff}
+
+- substract 0.5 of score of inverse stance from score
+
+\subsection{Debater}
+
+- first 5 sentences surrounding image ranked against original query text
 
 We used IBM's Project Debater Early Access API to score the text content of a Website.
 
@@ -164,6 +176,5 @@ We applied this by first splitting the website text content into sentences and t
 %todo reference project debater website
 
 \bibliography{../bibliography/bibliography}
-
 
 \end{document}
