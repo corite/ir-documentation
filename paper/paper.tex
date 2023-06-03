@@ -19,6 +19,9 @@
 %% auto break lines
 \lstset{breaklines=true}
 
+\usepackage{algpseudocode}
+\usepackage{csquotes}
+
 %%
 %% end of the preamble, start of the body of the document source.
 \begin{document}
@@ -93,10 +96,74 @@ email=christian.ortlepp@uni-jena.de
 %% information and builds the first part of the formatted document.
 \maketitle
 
-\input{query-expansion.tex}
-\input{retrieval.tex}
-\input{reranking.tex}
-\input{evaluation.tex}
-\input{results.tex}
+\section{Content extraction} \label{content-extraction}
+
+In our approach we assume the image's stance towards a topic is reflected by the text surrounding it. Following the idea that the text in closer spacial proximity to the image is more likely to be connected to the image's content, we implemented an algorithm to extract paragraphs from the document starting at the image and then alternating between paragraphs directly above and below the image. These paragraphs will then be concatenated and used as a document representation for the image throughout this paper. This results in the first sentences of the document being more important, since they were found closer to the image.
+
+To find nodes containing meaningful text in the HTML document we used the \texttt{DefaultExtractor} of the boilerpy3 library, because the default \texttt{ArticleExtractor} left out too many relevant parts of the document. The extractor employs some heuristics and marks nodes in the HTML document which are likely to contain meaningful text using a special tag. We then used the xPaths of the images provided in the image dataset to find image occurences in the tagged HTML document. Starting with the alt text of the image if available, text from below and above the image is extracted alternatingly.
+
+\begin{figure}
+\begin{algorithmic}
+	\State $O \gets [\,]$
+	\State $C \gets [\,]$
+	\For{node in document}
+		\If{node is tagged as content and node contains text}
+			\State C.append(node)
+		\EndIf
+		\If{node.xPath in ImagexPaths}
+			\State C.append(node)
+			\If{O is empty}
+				\State O.append(reverse(C))
+			\Else
+				\State O.append(C[:len(C) / 2])
+				\State O.append(reverse(C[len(C) / 2:]))
+			\EndIf
+			\State $C \gets [\,]$
+		\EndIf
+	\EndFor
+\State O.append(C) \\
+\Return O
+\end{algorithmic}
+\caption{algorithm which creates a list of lists where the inner lists start with the image node itself followed by HTML nodes closest to the image}
+\end{figure}
+
+\section{Query expansion}
+
+To find arguments of a particular stance towards a given topic, we prompted ChatGPT using the following template, in which \texttt{\$STANCE} is replaced by \enquote{for} for PRO and \enquote{against} for CON. The original query is passed as \texttt{\$TOPIC}.
+
+\begin{quote}
+    Name a list of arguments \$STANCE "\$TOPIC"
+\end{quote}
+\begin{quote}
+    For each of the arguments, what could be an image description of an image illustrating the issue?
+\end{quote}
+
+The answers were always correctly formatted Markdown lists (either enumerated or with bullet points) which could be easily parsed into a list of seperate arguments. Since our project began just with the start of the public beta of ChatGPT no official API was available at the time so the answers were fetched from the browser interface of the ChatGPT version deployed at that time using an unofficial puppeteer script. For reproducibility all answers for both stances and topics 51 to 100 are hardcoded in a text file published with our source code.
+
+\section{Retrieval}
+
+After expanding the topic for a given stance into a list of arguments, we try to find coresponding images from the dataset in two different ways. The first one uses the surrounding text of the image, as explained in section \ref{content-extraction}, whereas the second approach exclusively works on the image data itself.
+
+\subsection{BM25}
+
+Using the first 4096 characters of the concatenated paragraphs obtained by the method described in section \ref{content-extraction}, a BM25 index was built for the whole dataset. The document ids are the id of the image whose containing HTML page was used for the content extraction.
+
+Given a list of arguments for a certain stance we concatenate all the arguments and use the resulting string as the input query for the BM25 search, whose results will be further processed by a reranker as described later.
+
+\subsection{CLIP}
+
+The CLIP \cite{radford2021learning} neural network was designed and trained by OpenAI to map images as well as short phrases of text into the same 512-dimensional vector space. While projects like Stable Diffusion use this model to obtain vector representaions for prompts, we wanted to find images 
+
+\section{Reranking}
+
+We used IBM's Project Debater Early Access API to score the text content of a Website.
+
+For this we used the "pro-con" endpoint, which given two sentences returns the stance of the first sentence relative to the second sentence as a number between -1 (CON) and 1 (PRO).
+
+We applied this by first splitting the website text content into sentences and then ranking each sentence of the document relative to the current search query. The stance of the document as a whole is then computed as the average of all individual text stances.
+%todo reference project debater website
+
+\bibliography{../bibliography/bibliography}
+
 
 \end{document}
