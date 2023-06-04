@@ -145,11 +145,11 @@ The answers were always correctly formatted Markdown lists (either enumerated or
 
 \section{Retrieval}
 
-After expanding the topic for a given stance into a list of arguments, we try to find coresponding images from the dataset in two different ways. The first one uses the surrounding text of the image, as explained in section \ref{content-extraction}, whereas the second approach exclusively works on the image data itself.
+After expanding the topic for a given stance into a list of arguments, we try to find corresponding images from the dataset in two different ways. The first one uses the surrounding text of the image, as explained in section \ref{content-extraction}, whereas the second approach exclusively works on the image data itself.
 
 \subsection{BM25}
 
-Using the first 4096 characters of the concatenated paragraphs obtained by the method described in section \ref{content-extraction}, a BM25 index was built for the whole dataset. The document ids are the id of the image, whose containing HTML page was used for the content extraction.
+Using the first 4096 characters of the concatenated paragraphs obtained by the method described in section \ref{content-extraction}, a BM25 index was built for the whole dataset. The document IDs are the ID of the image, whose containing HTML page was used for the content extraction.
 
 Given a list of arguments for a certain stance, we concatenate all the arguments and use the resulting string as the input query for the BM25 search, whose results will be further processed by a reranker as described later.
 
@@ -157,25 +157,25 @@ Given a list of arguments for a certain stance, we concatenate all the arguments
 
 The CLIP \cite{radford2021learning} neural network was designed and trained by OpenAI to map images as well as short phrases of text describing images into the same 512-dimensional vector space. While projects like Stable Diffusion use this model to obtain vector representaions for prompts, we wanted to find images representing a certain topic, or even argument.
 
-For every image in the dataset we used the pretrained \texttt{openai/clip-vit-base-patch32} model to infer the corresponding vector representation, which was then normalized to length one and added to a \texttt{BallTree} index from sklearn. This enables us to use a k-nearest-neighbor search, which results in the same ranking as when sorting by cosine similarity.
+For every image in the dataset, we used the pretrained \texttt{openai/clip-vit-base-patch32} model to infer the corresponding vector representation, which was then normalized to length one and added to a \texttt{BallTree} index from sklearn. This enables us to use a k-nearest-neighbor search, which results in the same ranking as when sorting by cosine similarity.
 
 Based on a list of seperate arguments, we looked up the 100 nearest images to the vector representing the argument text for each argument. The retrieval result is sorted by the distance to the respective argument, so images representing different arguments will share the top ranks. If an image appears in the 100 nearest neighbors of multiple arguments, the lowest of the distances is used as the score.
 
 \section{Reranking}
 
-While the retrieval operations discussed before can be efficiently applied on the whole dataset and result most of the time in on-topic images, we attempted to further refine the results towards a certain stance. For this we used the top 500 images obtained using either CLIP or BM25 and passed them to our reranking stage.
+While the retrieval operations discussed before can be efficiently applied on the whole dataset and result in on-topic images most of the time, we attempted to further refine the results towards a certain stance. For this, we used the top 500 images obtained using either CLIP or BM25 and passed them to our reranking stage.
 
 The parameters used in both rerankers were chosen using a grid search on the 2022 dataset on topics 12, 13, 20, 46 and 49, for which we manually judged the union of the top 1000 CLIP and BM25 results using the original topic as the input.
 
 \subsection{Diff}
 
-Often on-topic images appeared in the top results of both stances. Therefore in this reranking we subtracted 0.5 times the BM25 score of the same document for the opposite stance from the actual BM25 score, in an attempt to lower the score of neutral but on-topic images.
+Often on-topic images appeared in the top results of both stances. Therefore, in this reranking we subtracted 0.5 times the BM25 score of the same document for the opposite stance from the actual BM25 score, in an attempt to lower the score of neutral but on-topic images.
 
 \subsection{Debater}
 
-We used IBM's Project Debater Early Access API \cite{barhaim2021project} to calculate a new score for each image based on the first 5 sentences of our document representation, i.e. the sentences closest to the image in the page, including the image's alt text.
+We used IBM's Project Debater Early Access API \cite{barhaim2021project} to calculate a new score for each image based on the first 5 sentences of our document representation, i.e. the sentences closest to the image on the page, including the image's alt text.
 
-For this we used the "pro-con" endpoint, which given two sentences returns the stance of the first sentence relative to the second sentence as a number between -1 (CON) and 1 (PRO). We calculated this score for each sentence paired with the original topic text and averaged them to get the new image score. When ranking for CON instead of PRO, the score was simply inverted.
+For this, we used the "pro-con" endpoint, which given two sentences returns the stance of the first sentence relative to the second sentence as a number between -1 (CON) and 1 (PRO). We calculated this score for each sentence paired with the original topic text and averaged them to get the new image score. When ranking for CON instead of PRO, the score was simply inverted.
 
 \section{Evaluation}
 
