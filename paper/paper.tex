@@ -41,7 +41,7 @@
 
 %%
 %% The "title" command
-\title{Image Retrieval for Arguments - Team "Neville Longbottom"}
+\title{Neville Longbottom at Touch\'e 2023: Image Retrieval for Arguments using ChatGPT, CLIP and IBM Debater}
 \title[mode=sub]{Notebook for the Touch{\'e} Lab on Argument and Causal Retrieval at CLEF 2023}
 
 
@@ -73,12 +73,7 @@ email=christian.ortlepp@uni-jena.de
 %% The abstract is a short summary of the work to be presented in the
 %% article.
 \begin{abstract}
-  A clear and well-documented \LaTeX{} document is presented as an
-  article formatted for publication by CEUR-WS in a conference
-  proceedings. Based on the ``ceurart'' document class, this article
-  presents and explains many of the common variations, as well as many
-  of the formatting elements an author may use in the preparation of
-  the documentation of their work.
+The objective of this task is to retrieve 10 images supporting and 10 images opposing a controversial topic from a given dataset of images. We describe a way to prompt ChatGPT for arguments supporting each stance, which can then be used to find matching images. Our first approach uses BM25 on the website text to represent an image, while our second method uses OpenAI's CLIP to analyze the images themselves and match them to arguments. Both retrieval methods can then be refined using IBM Debater's stance detection capabilities to further increase stance awareness.
 \end{abstract}
 
 %%
