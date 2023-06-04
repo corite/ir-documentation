@@ -164,7 +164,7 @@ The CLIP \cite{radford2021learning} neural network was designed and trained by O
 
 For every image in the dataset we used the pretrained \texttt{openai/clip-vit-base-patch32} model to infer the corresponding vector representation, which was then normalized to length one and added to a \texttt{BallTree} index from sklearn. This enables us to use a k-nearest-neighbor search, which results in the same ranking as when sorting by cosine similarity.
 
-Based on a list of seperate arguments, we found the 100 nearest images to the vector representing the argument text for each argument. The retrieval result is sorted by the distance to the respective argument, so images representing different arguments will share the top ranks. If an image appears in the 100 nearest neighbors of multiple arguments the lowest of the distances is used as the score.
+Based on a list of seperate arguments, we looked up the 100 nearest images to the vector representing the argument text for each argument. The retrieval result is sorted by the distance to the respective argument, so images representing different arguments will share the top ranks. If an image appears in the 100 nearest neighbors of multiple arguments the lowest of the distances is used as the score.
 
 \section{Reranking}
 
