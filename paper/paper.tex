@@ -88,7 +88,7 @@ email=christian.ortlepp@uni-jena.de
   CLIP \sep
   ChatGPT \sep
   IBM Debater \sep
-  args.me
+	boilerpy
 \end{keywords}
 
 %%
@@ -98,16 +98,18 @@ email=christian.ortlepp@uni-jena.de
 
 \section{Content extraction} \label{content-extraction}
 
-In our approach we assume the image's stance towards a topic is reflected by the text surrounding it. Following the idea that the text in closer spacial proximity to the image is more likely to be connected to the image's content, we implemented an algorithm to extract paragraphs from the document starting at the image and then alternating between paragraphs directly above and below the image. These paragraphs will then be concatenated and used as a document representation for the image throughout this paper. This results in the first sentences of the document being more important, since they were found closer to the image.
+In our approach we assume the image's stance towards a topic is reflected by the text surrounding it. Following the idea that the text in closer spacial proximity in the document to the image is more likely to be connected to the image's content, we implemented an algorithm to extract paragraphs from the document starting at the image and then alternating between paragraphs directly above and below the image. These paragraphs will then be concatenated and used as the document representation for the image throughout this paper.
 
 To find nodes containing meaningful text in the HTML document we used the \texttt{DefaultExtractor} of the boilerpy3 library, because the default \texttt{ArticleExtractor} left out too many relevant parts of the document. The extractor employs some heuristics and marks nodes in the HTML document which are likely to contain meaningful text using a special tag. We then used the xPaths of the images provided in the image dataset to find image occurences in the tagged HTML document. Starting with the alt text of the image if available, text from below and above the image is extracted alternatingly.
 
-\begin{figure}
+\begin{figure}[htbp]
+	\begin{minipage}[b]{.45\textwidth}
 \begin{algorithmic}
 	\State $O \gets [\,]$
 	\State $C \gets [\,]$
 	\For{node in document}
-		\If{node is tagged as content and node contains text}
+		\If{node is tagged as content and \\ 
+		\quad\quad\,\,\,node contains text}
 			\State C.append(node)
 		\EndIf
 		\If{node.xPath in ImagexPaths}
@@ -124,7 +126,13 @@ To find nodes containing meaningful text in the HTML document we used the \textt
 \State O.append(C) \\
 \Return O
 \end{algorithmic}
-\caption{algorithm which creates a list of lists where the inner lists start with the image node itself followed by HTML nodes closest to the image}
+\end{minipage}
+\hfill
+\begin{minipage}[b]{.41\textwidth}
+	\includegraphics[width=\textwidth]{figures/bbc-news-1.png}
+\end{minipage}
+\vspace{.5em}
+\caption{Algorithm which creates a list of lists, where the inner lists start with the image node itself followed by HTML nodes closest to the image. The text contained in the nodes in the lists will then be concatenated alternatingly starting at the front to generate a document.}
 \end{figure}
 
 \section{Query expansion}
@@ -138,7 +146,7 @@ To find arguments of a particular stance towards a given topic, we prompted Chat
     For each of the arguments, what could be an image description of an image illustrating the issue?
 \end{quote}
 
-The answers were always correctly formatted Markdown lists (either enumerated or with bullet points) which could be easily parsed into a list of seperate arguments. Since our project began just with the start of the public beta of ChatGPT no official API was available at the time so the answers were fetched from the browser interface of the ChatGPT version deployed at that time using an unofficial puppeteer script. For reproducibility all answers for both stances and topics 51 to 100 are hardcoded in a text file published with our source code.
+The answers were always correctly formatted Markdown lists (either enumerated or with bullet points) which could be easily parsed into a list of seperate arguments. Since our project began just with the start of the public beta of ChatGPT, no official API was available, so the answers were fetched from the browser interface of the ChatGPT version deployed at that time using an unofficial puppeteer script. For reproducibility all answers for both stances and topics 51 to 100 are hardcoded in a text file published with our source code. \footnote{\url{https://github.com/corite/ir-code}}
 
 \section{Retrieval}
 
@@ -152,36 +160,37 @@ Given a list of arguments for a certain stance we concatenate all the arguments 
 
 \subsection{CLIP}
 
-The CLIP \cite{radford2021learning} neural network was designed and trained by OpenAI to map images as well as short phrases of text into the same 512-dimensional vector space. While projects like Stable Diffusion use this model to obtain vector representaions for prompts, we wanted to find images 
+The CLIP \cite{radford2021learning} neural network was designed and trained by OpenAI to map images as well as short phrases of text into the same 512-dimensional vector space. While projects like Stable Diffusion use this model to obtain vector representaions for prompts, we wanted to find images representing a certain topic, or even argument.
 
-- retrieve 100 images for each argument, sort by minimum distance between image result and argument
+For every image in the dataset we used the pretrained \texttt{openai/clip-vit-base-patch32} model to infer the corresponding vector representation, which was then normalized to length one and added to a \texttt{BallTree} index from sklearn. This enables us to use a k-nearest-neighbor search, which results in the same ranking as when sorting by cosine similarity.
+
+Based on a list of seperate arguments, we found the 100 nearest images to the vector representing the argument text for each argument. The retrieval result is sorted by the distance to the respective argument, so images representing different arguments will share the top ranks. If an image appears in the 100 nearest neighbors of multiple arguments the lowest of the distances is used as the score.
 
 \section{Reranking}
 
-- no reranking
+While the retrieval operations discussed before can be efficiently applied over the whole dataset and result most of the time in on-topic images, we attempted to further refine the results towards a certain stance. For this we used the top 500 images obtained using either CLIP or BM25 and passed them to our reranking stage.
+
+The parameters used in both rerankers were chosen using a grid search on the 2022 dataset on topics 12, 13, 20, 46 and 49, for which we manually judged the union of the top 1000 CLIP and BM25 results using the original topic as the input.
 
 \subsection{Diff}
 
-- substract 0.5 of score of inverse stance from score
+Often on-topic images appeared in the top results of both stances. Therefore in this reranking we subtracted 0.5 times the BM25 score for the opposite document from the actual BM25 score, in an attempt to lower the score of neutral but on-topic images.
 
 \subsection{Debater}
 
-- first 5 sentences surrounding image ranked against original query text
+We used IBM's Project Debater Early Access API \cite{barhaim2021project} to calculate a new score for each image based on the first 5 sentences of our document representation, i.e. the sentences closest to the image in the page, including the image's alt text.
 
-We used IBM's Project Debater Early Access API to score the text content of a Website.
+For this we used the "pro-con" endpoint, which given two sentences returns the stance of the first sentence relative to the second sentence as a number between -1 (CON) and 1 (PRO). We calculated this score for each sentence paired with the original topic text and averaged them to get the new image score. When ranking for CON instead of PRO, the score was simply inverted.
 
-For this we used the "pro-con" endpoint, which given two sentences returns the stance of the first sentence relative to the second sentence as a number between -1 (CON) and 1 (PRO).
-
-We applied this by first splitting the website text content into sentences and then ranking each sentence of the document relative to the current search query. The stance of the document as a whole is then computed as the average of all individual text stances.
-%todo reference project debater website
+\section{Evaluation}
 
 \begin{verbatim}
-bm25_chatgpt_args.debater
-bm25_chatgpt_args.diff
 bm25_chatgpt_args.raw
+bm25_chatgpt_args.diff
+bm25_chatgpt_args.debater
 
-clip_chatgpt_args.debater
 clip_chatgpt_args.raw
+clip_chatgpt_args.debater
 \end{verbatim}
 
 \bibliography{../bibliography/bibliography}
